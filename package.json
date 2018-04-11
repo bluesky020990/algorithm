@@ -1,0 +1,31 @@
+{
+  "name": "algorithm",
+  "version": "1.0.0",
+  "description": "Algorithm by Javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bluesky020990/algorithm.git"
+  },
+  "keywords": [
+    "algorithm",
+    "javascript"
+  ],
+  "author": "KhanhTran",
+  "license": "ISC",
+  "devDependencies": {
+    "lite-server": "^2.3.0"
+  },
+
+  "scripts": {
+    "start": "lite-server"
+  },
+
+  "bugs": {
+    "url": "https://github.com/bluesky020990/algorithm/issues"
+  },
+  "homepage": "https://github.com/bluesky020990/algorithm#readme"
+}

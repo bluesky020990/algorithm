@@ -1,0 +1,23 @@
+//{
+//  "compilerOptions": {
+//    "allowJs": true,
+//    "module": "commonjs",
+//    "noImplicitAny": true,
+//    "target": "es5"
+//  },
+//  "exclude": [
+//    "node_modules"
+//  ]
+//}
+
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "allowJs": true,
+    "module": "system", // commonjs | system
+    "target": "es5",
+    "noImplicitAny": false,
+    "sourceMap": false,
+    "outFile": "./dist/main.js"
+  }
+}

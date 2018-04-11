@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+    <script src="./dist/plugin/raphael.js"></script>
+</head>
+
+<body>
+<div class="container">
+    <div class="sort-object-controller">
+        <input type="number"  id="total-number" style="width: 200px;" placeholder="Total number"/>
+        <!--<input type="number" id="begin-number" style="width: 200px;" placeholder="Begin Number"/>-->
+        <!--<input type="number" id="to-number" style="width: 200px;" placeholder="To Number"/>-->
+        <input type="checkbox" id="is-duplicated" />
+
+        <div>
+            <a class="btn btn-generate" onClick="generateListObject()">Generate</a>
+        </div>
+    </div>
+
+    <div class="sort-object-container">
+
+    </div>
+</div>
+
+<script src="./dist/main.js"></script>
+<script>
+    function generateListObject(){
+        var sortType = "SELECTION_SORT";
+        var container = document.createElement("DIV");
+        var paper = new Raphael(container, 0, 0, "100%", "100%");
+        triggerSortEvent(sortType, paper)
+    }
+</script>
+</body>
+</html>

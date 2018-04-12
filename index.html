@@ -1,7 +1,20 @@
 <!doctype html>
 <html>
 <head>
-    <script src="./dist/plugin/raphael.js"></script>
+    <script type="text/javascript" src="./src/plugin/raphael_.js"></script>
+    <style>
+        #sort-object-container{
+            position: relative;
+        }
+
+        #sort-object-container:before{
+            content: '';
+            display: inline-block;
+            width: 100%;
+            position: absolute;
+            padding-top: 56.25%;
+        }
+    </style>
 </head>
 
 <body>
@@ -13,22 +26,32 @@
         <input type="checkbox" id="is-duplicated" />
 
         <div>
-            <a class="btn btn-generate" onClick="generateListObject()">Generate</a>
+            <a id="btn-generate" onClick="generateListObject()">Generate</a>
+            <a id="btn btn-sort" onClick="sortListObject()">SORT</a>
         </div>
     </div>
 
-    <div class="sort-object-container">
+    <div id="sort-object-container" style="width: 100%; height: auto">
 
     </div>
 </div>
 
 <script src="./dist/main.js"></script>
 <script>
+    var CURRENT_SORT_OBJECT = null;
+
+    function sortListObject(){
+        CURRENT_SORT_OBJECT.sortArray();
+    }
+
     function generateListObject(){
         var sortType = "SELECTION_SORT";
-        var container = document.createElement("DIV");
-        var paper = new Raphael(container, 0, 0, "100%", "100%");
-        triggerSortEvent(sortType, paper)
+        var container = document.getElementById("sort-object-container");
+        container.innerHTML = "";
+
+        var paper = new Raphael("sort-object-container", container.clientWidth, container.clientHeight);
+        paper.setViewBox(0, 0, container.clientWidth, container.clientHeight, true);
+        CURRENT_SORT_OBJECT = triggerSortEvent(Raphael, sortType, paper, 40, false, null);
     }
 </script>
 </body>

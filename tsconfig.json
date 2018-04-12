@@ -19,5 +19,12 @@
     "noImplicitAny": false,
     "sourceMap": false,
     "outFile": "./dist/main.js"
-  }
+  },
+  "exclude": [
+    "dist", "src/plugin"
+  ]
+//  "files": [
+//    "./src/object/selection_sort.ts",
+//    "./src/object/selection_sort.ts"
+//  ]
 }

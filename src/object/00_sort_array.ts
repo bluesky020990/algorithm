@@ -3,16 +3,19 @@ let RaphaelJs = null;
 interface IPoint {
     compareTo: (IPoint) => number,
     swapPosition: (IPoint) => void,
+    getSwapPosition: (IPoint) => any,
+
     move: (dx: number, dy: number) => void,
     updatePosition: (cx, cy) => void,
 
     isSelected: () => boolean,
     selected: () => void,
     unselected: () => void,
+    getRepresentObject: () => {},
 }
 
-class AbstractArrayPoint{
-    paper : any;
+class AbstractArrayPoint {
+    paper: any;
     value: number;
     object: IObjectRepresent;
     izSelected: boolean;
@@ -27,23 +30,31 @@ class ArrayPoint extends AbstractArrayPoint implements IPoint {
         super(paper);
 
         let params = [];
-        if(objectType == "circle"){
+        if (objectType == "circle") {
             params = [paper, position.cx, position.cy, 20, value, COLOR_ARRAY.red, COLOR_ARRAY.white];
         } else {
             params = [paper, position.cx, position.cy, 20, value, COLOR_ARRAY.red, COLOR_ARRAY.white];
         }
 
-        this.object = ObjectRepresentFactory.getObjectPresent(objectType, params);
+        this.object = ObjectRepresentFactory.getRepresentObjectByType(objectType, params);
         this.value = value;
         this.izSelected = false;
     }
 
-    compareTo = function (point: ArrayPoint) {
+    getSwapPosition = (target: ArrayPoint) => {
+        return this.object.getSwapPosition(target.object);
+    };
+
+    getRepresentObject = () => {
+        return this.object.getRepresentObject();
+    };
+
+    compareTo = (point: ArrayPoint) => {
         return this.value - point.value;
     };
 
-    swapPosition = function (point: ArrayPoint) {
-       this.object.swapPosition(point.object);
+    swapPosition = (point: ArrayPoint) => {
+        this.object.swapPosition(point.object);
     };
 
     updatePosition = (position) => {
@@ -77,15 +88,20 @@ interface ISortArray {
 }
 
 interface ArrayRange {
-    min : number, max: number, step: number
+    min: number,
+    max: number,
+    step: number
 }
 
+
 class SortArrayData implements ISortArray {
+    animateStackHandle: AnimateStackHandle;
     listObject: IPoint[];
     paper: any;
 
     constructor(paper) {
         this.paper = paper;
+        this.animateStackHandle = new AnimateStackHandle();
     }
 
     createArray = (totalItem: number, isDuplicated: boolean, range) => {
@@ -101,7 +117,7 @@ class SortArrayData implements ISortArray {
         this.renderListObject(objectArray);
     };
 
-    createDuplicatedArray = (range : ArrayRange)=> {
+    createDuplicatedArray = (range: ArrayRange) => {
         let objectArray = new Array();
         for (let i = range.min; i <= range.max; i++) {
             let currentValue = this.randomBetweenTwoNumber(range.min, range.max);
@@ -110,7 +126,7 @@ class SortArrayData implements ISortArray {
         return objectArray;
     };
 
-    createUniqueArray = (range : ArrayRange) => {
+    createUniqueArray = (range: ArrayRange) => {
         let temp_array = new Array();
 
         for (let i = range.min; i <= range.max; i++) {
@@ -138,7 +154,8 @@ class SortArrayData implements ISortArray {
         let unit_range = (this.paper.width - (padding.x * 2)) / objectArray.length;
 
         for (let value of objectArray) {
-            let object = new ArrayPoint(this.paper, value, "circle", {cx : begin_cx, cy: begin_cy});
+            let object = new ArrayPoint(this.paper, value, "circle", {cx: begin_cx, cy: begin_cy});
+
             _listObject.push(object);
             begin_cx += unit_range;
         }
@@ -165,7 +182,6 @@ class SortArrayFactory {
         }
     }
 }
-
 
 
 function triggerSortEvent(raphael, paper, sortType, ...params) {

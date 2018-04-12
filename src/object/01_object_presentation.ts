@@ -1,9 +1,12 @@
 interface IObjectRepresent {
+    getRepresentObject : () => any;
     getBBox : () => {};
     transform: (dx: number, dy: number) => void,
     selected: () => void,
     unselected: () => void,
+
     swapPosition : (target : IObjectRepresent) => void,
+    getSwapPosition : (target) => {},
     updatePosition: (position: {}) => void,
 
     compareToAnimation: (IObjectRepresent) => void,
@@ -33,6 +36,10 @@ class AbstractObjectRepresent {
         this.object.attr("opacity", 1);
         this.label.attr("opacity", 1);
     };
+
+    getRepresentObject  = () =>{
+        return this.object;
+    };
 }
 
 
@@ -50,8 +57,8 @@ class CircleObject extends AbstractObjectRepresent implements IObjectRepresent {
     }
 
     swapPosition = (target) => {
-        let objectBBox = this.getBBox();
-        let targetBBox = target.getBBox();
+        let objectBBox = this.object.getBBox();
+        let targetBBox = target.object.getBBox();
 
         let object_position = {cx : targetBBox.x + targetBBox.width / 2, cy : targetBBox.y + targetBBox.height / 2};
         let target_position = {cx : objectBBox.x + objectBBox.width / 2, cy : objectBBox.y + objectBBox.height / 2};
@@ -60,29 +67,43 @@ class CircleObject extends AbstractObjectRepresent implements IObjectRepresent {
         target.updatePosition(target_position);
     };
 
+    getSwapPosition = (target) => {
+        let objectBBox = this.object.getBBox();
+        let targetBBox = target.object.getBBox();
+
+        let object_position = {cx : targetBBox.x + targetBBox.width / 2, cy : targetBBox.y + targetBBox.height / 2};
+        let target_position = {cx : objectBBox.x + objectBBox.width / 2, cy : objectBBox.y + objectBBox.height / 2};
+
+        return {
+            focus : object_position, target : target_position
+        }
+    };
+
     updatePosition = (position) => {
         this.object.attr("cx", position.cx);
         this.object.attr("cy", position.cy);
 
         this.label.attr("x", position.cx);
         this.label.attr("y", position.cy);
-    };
 
-    compareToAnimation = (_object) => {
-
+        // this.adjustPositionAnimation(position);
     };
 
     adjustPositionAnimation = (position) => {
-        let animation = RaphaelJs.animation({'cx': position.cx, 'cy': position.cy}, 1000, "easeInOut", function () {
+        let animation = RaphaelJs.animation({'cx': position.cx, 'cy': position.cy}, 1000, "easeInOut", () => {
 
         });
 
-        let animationLabel = RaphaelJs.animation({'x': position.cx, 'y': position.cy}, 1000, "easeInOut", function () {
+        let animationLabel = RaphaelJs.animation({'x': position.cx, 'y': position.cy}, 1000, "easeInOut",  () => {
 
         });
 
         this.object.animate(animation);
         this.label.animate(animationLabel);
+    };
+
+    compareToAnimation = (_object) => {
+
     };
 }
 
@@ -106,6 +127,15 @@ class SquareObject extends AbstractObjectRepresent implements IObjectRepresent {
 
         this.updatePosition(targetBBox);
         target.updatePosition(objectBBox);
+    };
+
+    getSwapPosition = (target) => {
+        let objectBBox = this.getBBox();
+        let targetBBox = target.getBBox();
+
+        return {
+            focus : objectBBox, target : targetBBox
+        }
     };
 
     updatePosition = (position) => {
@@ -137,7 +167,7 @@ class SquareObject extends AbstractObjectRepresent implements IObjectRepresent {
 
 
 class ObjectRepresentFactory {
-    static getObjectPresent = (type: string, params) => {
+    static getRepresentObjectByType = (type: string, params) => {
         if (type == "circle") {
             return new CircleObject(params);
         } else if (type == "rect") {

@@ -1,16 +1,17 @@
 interface IObjectRepresent {
     getRepresentObject : () => any;
     getBBox : () => {};
-    transform: (dx: number, dy: number) => void,
-    selected: () => void,
-    unselected: () => void,
+    transform: (dx: number, dy: number) => void;
+    selected: () => void;
+    unselected: () => void;
 
-    swapPosition : (target : IObjectRepresent) => void,
-    getSwapPosition : (target) => {},
-    updatePosition: (position: {}) => void,
+    swapPosition : (target : IObjectRepresent) => void;
+    getSwapPosition : (target) => {};
+    updatePosition: (position: {}) => void;
 
-    compareToAnimation: (IObjectRepresent) => void,
-    adjustPositionAnimation: (position: {}) => void,
+    compareToAnimation: (IObjectRepresent) => void;
+    adjustPositionAnimation: (position: {}) => void;
+    validateRepresent : () => void;
 }
 
 class AbstractObjectRepresent {
@@ -86,6 +87,10 @@ class LabelObject extends AbstractObjectRepresent implements IObjectRepresent {
     compareToAnimation = (_object) => {
 
     };
+
+    validateRepresent = () => {
+
+    }
 }
 
 
@@ -136,6 +141,10 @@ class CircleObject extends AbstractObjectRepresent implements IObjectRepresent {
     compareToAnimation = (_object) => {
 
     };
+
+    validateRepresent = () => {
+
+    }
 }
 
 class SquareObject extends AbstractObjectRepresent implements IObjectRepresent {
@@ -180,6 +189,10 @@ class SquareObject extends AbstractObjectRepresent implements IObjectRepresent {
 
         this.object.animate(animation);
     };
+
+    validateRepresent = () => {
+
+    }
 }
 
 

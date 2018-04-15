@@ -1,4 +1,4 @@
-const ANIMATION_TIME = 100;
+const ANIMATION_TIME = 50;
 
 enum ANIMATION_TYPE {
     selected = "SELECTED",
@@ -6,7 +6,8 @@ enum ANIMATION_TYPE {
     transform = "TRANSFORM",
     rotate = "ROTATE",
     compareTo = "COMPARE_TO",
-    swapPosition = "SWAP"
+    swapPosition = "SWAP",
+    finished = "FINISHED"
 }
 
 interface IAnimateStackData {
@@ -22,33 +23,13 @@ class AnimateStackHandle {
     listAnimate = new Array();
 
     addListAnimate = (animates : IAnimateStackData[]) => {
-        this.listAnimate.push([animates]);
+        this.listAnimate= this.listAnimate.concat(animates);
     };
 
     setAnimation = (object: IPoint, action, target : IPoint) => {
         let listAnimate = [];
-
-        if(action == ANIMATION_TYPE.selected){
-            let animation = this.generateAnimate({opacity: 0.6}, "ease-out", null, object);
-            listAnimate.push(animation);
-
-        } else if (action == ANIMATION_TYPE.unselected){
-            let animation = this.generateAnimate({opacity: 1}, "ease-out", null, object);
-            listAnimate.push(animation);
-
-        } else if (action == ANIMATION_TYPE.swapPosition){
-            let swapPosition = object.getSwapPosition(target);
-
-            let animation1 = this.generateAnimate(swapPosition.focus, "ease-out", null, object);
-            let animation2 = this.generateAnimate(swapPosition.target, "ease-out", null, target);
-
-            listAnimate.push(animation1);
-            listAnimate.push(animation2);
-
-        } else if(action == ANIMATION_TYPE.compareTo){
-            
-        }
-
+        let animation = this.generateAnimateData(action, object, target, action == ANIMATION_TYPE.swapPosition ? 400 : null);
+        listAnimate.push(animation);
         this.addListAnimate(listAnimate);
     };
 
@@ -56,39 +37,108 @@ class AnimateStackHandle {
         let currentCallBackFunc = null;
         for(let i = this.listAnimate.length - 1; i >= 0; i --){
             let animateData = this.listAnimate[i];
-
             if(i > 0){
                 currentCallBackFunc = this.generateCallBackFunction (animateData, currentCallBackFunc);
             } else {
-                console.log(currentCallBackFunc);
                 this.playAnimate(animateData, currentCallBackFunc);
             }
         }
     };
 
     playAnimate = (animateData, callBackFunc) => {
-        animateData.object.animate(animateData.properties, animateData.type, ANIMATION_TIME, callBackFunc);
+        let object = animateData.object.getRepresentObject();
+        let label = animateData.object.getRepresentLabel();
+
+        let properties = this.generateAnimationProperties(animateData.animationType, animateData.object, animateData.target);
+
+        object.animate(properties.objectProperties, animateData.type, animateData.time, ()=>{
+            label.attr(properties.labelProperties);
+            callBackFunc();
+        });
     };
 
     generateCallBackFunction = (animateData, callBackFunc) => {
-        if(callBackFunc == null){
-            return () => {
-                let raphael_animation = RaphaelJs.animation(animateData.properties, ANIMATION_TIME, animateData.type);
-                return animateData.object.animate(raphael_animation);
-            }
-        } else {
-            return ()=> {
-                let raphael_animation = RaphaelJs.animation(animateData.properties, ANIMATION_TIME, animateData.type, callBackFunc);
-                return animateData.object.animate(raphael_animation);
+        let object = animateData.object.getRepresentObject();
+        let target = animateData.target != null ? animateData.target.getRepresentObject() : null;
+
+        let label = animateData.object.getRepresentLabel();
+        let targetLabel = animateData.target != null ? animateData.target.getRepresentLabel() : null;
+
+        return ()=> {
+            if (animateData.animationType == ANIMATION_TYPE.swapPosition){
+                let focus_properties = this.generateAnimationProperties(animateData.animationType, animateData.object, animateData.target);
+                let target_properties = this.generateAnimationProperties(animateData.animationType, animateData.target, animateData.object);
+
+                let object_animation = RaphaelJs.animation(focus_properties.objectProperties, animateData.time, animateData.type, () => {
+                    label.attr(focus_properties.labelProperties);
+
+                    if(callBackFunc != null){
+                        callBackFunc();
+                    }
+                });
+
+                let target_animation = RaphaelJs.animation(target_properties.objectProperties, animateData.time, animateData.type, () => {
+                    targetLabel.attr(target_properties.labelProperties);
+                });
+
+                object.animate(object_animation);
+                target.animate(target_animation);
+            } else {
+                let properties = this.generateAnimationProperties(animateData.animationType, animateData.object, animateData.target);
+                let raphael_animation = RaphaelJs.animation(properties.objectProperties, animateData.time, animateData.type, () => {
+                    label.attr(properties.labelProperties);
+
+                    if(callBackFunc != null){
+                        callBackFunc();
+                    }
+                });
+
+                object.animate(raphael_animation);
             }
         }
     };
 
-
-    generateAnimate = (properties, type, time, object) =>{
+    generateAnimateData = (animationType : string, object: IPoint, target : IPoint, time : number) =>{
         return {
-            properties, type, time, object
+            animationType, object, target, type : "ease-out", time : time == null ? ANIMATION_TIME : time
         }
-    }
-}
+    };
+
+    generateAnimationProperties = (action, object, target) => {
+        let properties = null;
+        let objectType = object.objectType;
+
+        if(action == ANIMATION_TYPE.selected){
+            properties = this.generatePropertiesData ({opacity: 0.6}, {opacity: 0.6});
+
+        } else if (action == ANIMATION_TYPE.unselected){
+            properties = this.generatePropertiesData ({opacity: 1}, {opacity: 1});
+
+        } else if (action == ANIMATION_TYPE.swapPosition){
+            if(objectType == "circle"){
+                let objectProperties = {cx : target.getRepresentObject().attr("cx"), cy : target.getRepresentObject().attr("cy")};
+                let labelProperties =  {x : target.getRepresentLabel().attr("x"), y : target.getRepresentLabel().attr("y")};
+
+                properties = this.generatePropertiesData (objectProperties, labelProperties);
+            } else {
+                let objectProperties = {x : target.getRepresentObject().attr("x"), y : target.getRepresentObject().attr("y")};
+                let labelProperties =  {x : target.getRepresentLabel().attr("x"), y : target.getRepresentLabel().attr("y")};
+
+                properties = this.generatePropertiesData (objectProperties, labelProperties);
+            }
+
+        } else if(action == ANIMATION_TYPE.compareTo){
+            properties = this.generatePropertiesData ({opacity: 1}, {opacity: 1});
+
+        } else if(action == ANIMATION_TYPE.finished){
+            properties = this.generatePropertiesData ({fill: COLOR_ARRAY.blue, transform: "t" + "0" + "," + 120}, {fill: COLOR_ARRAY.white, transform: "t" + "0" + "," + 120});
+        }
+
+        return properties;
+    };
+
+    generatePropertiesData = (objectProperties, labelProperties) => {
+        return {objectProperties, labelProperties}
+    };
+};
 

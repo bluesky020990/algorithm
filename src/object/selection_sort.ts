@@ -20,7 +20,6 @@ class SelectionSort extends SortArrayData{
 
             //1. selected the object
             let min_object = current_object;
-
             this.animateStackHandle.setAnimation(min_object, ANIMATION_TYPE.selected, null);
 
             for (let j = i + 1; j < this.listObject.length; j++) {
@@ -49,15 +48,33 @@ class SelectionSort extends SortArrayData{
                 let target_object  = this.listObject[min_idx];
 
                 // swap position for object
-                this.animateStackHandle.setAnimation(current_object, ANIMATION_TYPE.swapPosition, target_object);
-
-                // current_object.swapPosition(target_object);
-
-                this.listObject[i] = target_object;
                 this.listObject[min_idx] = current_object;
+                this.listObject[i] = target_object;
+
+                this.animateStackHandle.setAnimation(this.listObject[i], ANIMATION_TYPE.swapPosition, this.listObject[min_idx]);
+                this.animateStackHandle.setAnimation(this.listObject[i], ANIMATION_TYPE.finished, null);
+            } else {
+                this.animateStackHandle.setAnimation(this.listObject[i], ANIMATION_TYPE.finished, null);
             }
+
+            showCurrentListObject(this.listObject, i);
         }
 
+        this.animateStackHandle.setAnimation(this.listObject[this.listObject.length - 1], ANIMATION_TYPE.finished, null);
+
         this.animateStackHandle.playListAnimate();
+
+
+        function showCurrentListObject (listObject, index){
+            let message = new Array();
+            for(let i = 0; i < listObject.length; i++){
+                message.push(" " + listObject[i].value + " ");
+
+                if(i == index){
+                    message.push(" | ");
+                }
+            }
+            console.log(message.join(""));
+        }
     }
 }

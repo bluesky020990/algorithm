@@ -1,6 +1,8 @@
 let RaphaelJs = null;
 
 interface IPoint {
+    objectType : string;
+
     compareTo: (IPoint) => number,
     swapPosition: (IPoint) => void,
     getSwapPosition: (IPoint) => any,
@@ -17,18 +19,20 @@ interface IPoint {
 class AbstractArrayPoint {
     paper: any;
     value: number;
+    objectType : string;
     object: IObjectRepresent;
     label: IObjectRepresent;
     izSelected: boolean;
 
-    constructor(paper: any) {
+    constructor(paper: any, objectType) {
         this.paper = paper;
+        this.objectType = objectType;
     }
 }
 
 class ArrayPoint extends AbstractArrayPoint implements IPoint {
     constructor(paper, value, objectType, position) {
-        super(paper);
+        super(paper, objectType);
 
         if (objectType == "circle") {
             let object_param = ObjectRepresentFactory.getCircleRepresentObjectParam(paper, position.cx, position.cy, 20, COLOR_ARRAY.red);

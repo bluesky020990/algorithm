@@ -18,6 +18,7 @@ class AbstractArrayPoint {
     paper: any;
     value: number;
     object: IObjectRepresent;
+    label: IObjectRepresent;
     izSelected: boolean;
 
     constructor(paper: any) {
@@ -29,14 +30,21 @@ class ArrayPoint extends AbstractArrayPoint implements IPoint {
     constructor(paper, value, objectType, position) {
         super(paper);
 
-        let params = [];
         if (objectType == "circle") {
-            params = [paper, position.cx, position.cy, 20, value, COLOR_ARRAY.red, COLOR_ARRAY.white];
+            let object_param = ObjectRepresentFactory.getCircleRepresentObjectParam(paper, position.cx, position.cy, 20, COLOR_ARRAY.red);
+            this.object = ObjectRepresentFactory.getRepresentObjectByType(objectType, object_param);
+
+            let label_param = ObjectRepresentFactory.getTextRepresentObjectParam(paper, position.cx, position.cy, value, COLOR_ARRAY.white);
+            this.label = ObjectRepresentFactory.getRepresentObjectByType("label", label_param);
+
         } else {
-            params = [paper, position.cx, position.cy, 20, value, COLOR_ARRAY.red, COLOR_ARRAY.white];
+            let object_param = ObjectRepresentFactory.getCircleRepresentObjectParam(paper, position.cx, position.cy, 20, COLOR_ARRAY.red);
+            this.object = ObjectRepresentFactory.getRepresentObjectByType(objectType, object_param);
+
+            let object_label  = [paper, position.cx, position.cy, 20, value, COLOR_ARRAY.white, COLOR_ARRAY.white];
+            this.label = ObjectRepresentFactory.getRepresentObjectByType("label", object_label)
         }
 
-        this.object = ObjectRepresentFactory.getRepresentObjectByType(objectType, params);
         this.value = value;
         this.izSelected = false;
     }
@@ -47,6 +55,10 @@ class ArrayPoint extends AbstractArrayPoint implements IPoint {
 
     getRepresentObject = () => {
         return this.object.getRepresentObject();
+    };
+
+    getRepresentLabel = () => {
+        return this.label.getRepresentObject();
     };
 
     compareTo = (point: ArrayPoint) => {

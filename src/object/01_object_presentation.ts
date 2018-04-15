@@ -16,7 +16,6 @@ interface IObjectRepresent {
 class AbstractObjectRepresent {
     paper: any;
     object: any;
-    label: any;
 
     getBBox = () => {
         return this.object._getBBox();
@@ -24,17 +23,14 @@ class AbstractObjectRepresent {
 
     transform = (dx: number, dy: number) => {
         this.object.transform("t" + dx + "," + dy);
-        this.label.transform("t" + dx + "," + dy);
     };
 
     selected = () => {
         this.object.attr("opacity", 0.5);
-        this.label.attr("opacity", 0.5);
     };
 
     unselected = () => {
         this.object.attr("opacity", 1);
-        this.label.attr("opacity", 1);
     };
 
     getRepresentObject  = () =>{
@@ -42,18 +38,63 @@ class AbstractObjectRepresent {
     };
 }
 
+class LabelObject extends AbstractObjectRepresent implements IObjectRepresent {
+    constructor(params) {
+        super();
+        let [paper, cx, cy, label, color] = params;
+        this.paper = paper;
+        this.object = this.paper.text(cx, cy, label).attr({fill: color, 'font-size': 16});
+    }
+
+    swapPosition = (target) => {
+        let objectBBox = this.object.getBBox();
+        let targetBBox = target.object.getBBox();
+
+        let object_position = {cx : targetBBox.x + targetBBox.width / 2, cy : targetBBox.y + targetBBox.height / 2};
+        let target_position = {cx : objectBBox.x + objectBBox.width / 2, cy : objectBBox.y + objectBBox.height / 2};
+
+        this.updatePosition(object_position);
+        target.updatePosition(target_position);
+    };
+
+    getSwapPosition = (target) => {
+        let objectBBox = this.object.getBBox();
+        let targetBBox = target.object.getBBox();
+
+        let object_position = {cx : targetBBox.x + targetBBox.width / 2, cy : targetBBox.y + targetBBox.height / 2};
+        let target_position = {cx : objectBBox.x + objectBBox.width / 2, cy : objectBBox.y + objectBBox.height / 2};
+
+        return {
+            focus : object_position, target : target_position
+        }
+    };
+
+    updatePosition = (position) => {
+        this.object.attr("x", position.cx);
+        this.object.attr("y", position.cy);
+
+    };
+
+    adjustPositionAnimation = (position) => {
+        let animation = RaphaelJs.animation({'x': position.x, 'y': position.y}, 1000, "easeInOut",  () => {
+
+        });
+
+        this.object.animate(animation);
+    };
+
+    compareToAnimation = (_object) => {
+
+    };
+}
+
 
 class CircleObject extends AbstractObjectRepresent implements IObjectRepresent {
     constructor(params) {
         super();
-        let [paper, cx, cy, radius, value, color, labelColor] = params;
+        let [paper, cx, cy, radius, color] = params;
         this.paper = paper;
-
-        let _object = this.paper.circle(cx, cy, radius).attr({fill: color, stroke: "#000", 'stroke-width': 1});
-        let _label = this.paper.text(cx, cy, value).attr({fill: labelColor, 'font-size': 16});
-
-        this.object = _object;
-        this.label = _label;
+        this.object = this.paper.circle(cx, cy, radius).attr({fill: color, stroke: "#000", 'stroke-width': 1});
     }
 
     swapPosition = (target) => {
@@ -82,11 +123,6 @@ class CircleObject extends AbstractObjectRepresent implements IObjectRepresent {
     updatePosition = (position) => {
         this.object.attr("cx", position.cx);
         this.object.attr("cy", position.cy);
-
-        this.label.attr("x", position.cx);
-        this.label.attr("y", position.cy);
-
-        // this.adjustPositionAnimation(position);
     };
 
     adjustPositionAnimation = (position) => {
@@ -94,12 +130,7 @@ class CircleObject extends AbstractObjectRepresent implements IObjectRepresent {
 
         });
 
-        let animationLabel = RaphaelJs.animation({'x': position.cx, 'y': position.cy}, 1000, "easeInOut",  () => {
-
-        });
-
         this.object.animate(animation);
-        this.label.animate(animationLabel);
     };
 
     compareToAnimation = (_object) => {
@@ -110,15 +141,9 @@ class CircleObject extends AbstractObjectRepresent implements IObjectRepresent {
 class SquareObject extends AbstractObjectRepresent implements IObjectRepresent {
     constructor(...params) {
         super();
-
-        let [paper, x, y, width, height, value, color, labelColor] = params;
+        let [paper, x, y, width, height, color] = params;
         this.paper = paper;
-
-        let _object = paper.rect(x, y, width, height).attr({fill: color, stroke: "#000", 'stroke-width': 1});
-        let _label = paper.text(x + width / 2, y + height + 20, value).attr({fill: labelColor, 'font-size': 16});
-
-        this.object = _object;
-        this.label = _label;
+        this.object = paper.rect(x, y, width, height).attr({fill: color, stroke: "#000", 'stroke-width': 1});
     }
 
     swapPosition = (target) => {
@@ -142,9 +167,6 @@ class SquareObject extends AbstractObjectRepresent implements IObjectRepresent {
         let bBox = this.object._getBBox();
         this.object.attr("x", position.x);
         this.object.attr("y", position.y);
-
-        this.label.attr("x", position.x + bBox.width / 2);
-        this.label.attr("y", position.y + bBox.height + 20);
     };
 
     compareToAnimation = (_object) => {
@@ -156,12 +178,7 @@ class SquareObject extends AbstractObjectRepresent implements IObjectRepresent {
 
         });
 
-        let animationLabel = RaphaelJs.animation({'x': position.x, 'y': position.y}, 1000, "easeInOut", function () {
-
-        });
-
         this.object.animate(animation);
-        this.label.animate(animationLabel);
     };
 }
 
@@ -172,6 +189,20 @@ class ObjectRepresentFactory {
             return new CircleObject(params);
         } else if (type == "rect") {
             return new SquareObject(params);
+        }  else if (type == "label") {
+            return new LabelObject(params);
         }
-    }
+    };
+
+    static getCircleRepresentObjectParam = (paper, cx, cy, radius, color) => {
+        return [paper, cx, cy, radius, color]
+    };
+
+    static getRectRepresentObjectParam = (paper, x, y, width, height, color) => {
+        return [paper, x, y, width, height, color]
+    };
+
+    static getTextRepresentObjectParam = (paper, cx, cy, label, color) => {
+        return [paper, cx, cy, label, color]
+    };
 }

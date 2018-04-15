@@ -21,12 +21,35 @@ interface IAnimateStackData {
 class AnimateStackHandle {
     listAnimate = new Array();
 
-    addAnimate = (animate : IAnimateStackData) => {
-        this.listAnimate.push(animate);
+    addListAnimate = (animates : IAnimateStackData[]) => {
+        this.listAnimate.push([animates]);
     };
 
-    setAnimation = (object, action, target) => {
+    setAnimation = (object: IPoint, action, target : IPoint) => {
+        let listAnimate = [];
 
+        if(action == ANIMATION_TYPE.selected){
+            let animation = this.generateAnimate({opacity: 0.6}, "ease-out", null, object);
+            listAnimate.push(animation);
+
+        } else if (action == ANIMATION_TYPE.unselected){
+            let animation = this.generateAnimate({opacity: 1}, "ease-out", null, object);
+            listAnimate.push(animation);
+
+        } else if (action == ANIMATION_TYPE.swapPosition){
+            let swapPosition = object.getSwapPosition(target);
+
+            let animation1 = this.generateAnimate(swapPosition.focus, "ease-out", null, object);
+            let animation2 = this.generateAnimate(swapPosition.target, "ease-out", null, target);
+
+            listAnimate.push(animation1);
+            listAnimate.push(animation2);
+
+        } else if(action == ANIMATION_TYPE.compareTo){
+            
+        }
+
+        this.addListAnimate(listAnimate);
     };
 
     playListAnimate = () =>{
@@ -37,6 +60,7 @@ class AnimateStackHandle {
             if(i > 0){
                 currentCallBackFunc = this.generateCallBackFunction (animateData, currentCallBackFunc);
             } else {
+                console.log(currentCallBackFunc);
                 this.playAnimate(animateData, currentCallBackFunc);
             }
         }
@@ -47,7 +71,6 @@ class AnimateStackHandle {
     };
 
     generateCallBackFunction = (animateData, callBackFunc) => {
-
         if(callBackFunc == null){
             return () => {
                 let raphael_animation = RaphaelJs.animation(animateData.properties, ANIMATION_TIME, animateData.type);
@@ -59,7 +82,6 @@ class AnimateStackHandle {
                 return animateData.object.animate(raphael_animation);
             }
         }
-
     };
 
 

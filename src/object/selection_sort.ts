@@ -32,7 +32,7 @@ class SelectionSort extends SortArrayData{
                 if(min_object.compareTo(_object) > 0){
 
                     // 3. compare the object with other
-                    this.animateStackHandle.setAnimation(min_object, ANIMATION_TYPE.selected, _object);
+                    this.animateStackHandle.setAnimation(min_object, ANIMATION_TYPE.compareTo, _object);
 
                     min_idx = j;
                     min_object = _object;
@@ -51,7 +51,7 @@ class SelectionSort extends SortArrayData{
                 // swap position for object
                 this.animateStackHandle.setAnimation(current_object, ANIMATION_TYPE.swapPosition, target_object);
 
-                current_object.swapPosition(target_object);
+                // current_object.swapPosition(target_object);
 
                 this.listObject[i] = target_object;
                 this.listObject[min_idx] = current_object;

@@ -28,8 +28,7 @@ class SelectionSort extends SortArrayData{
                 //2. selected the current object
                 this.animateStackHandle.setAnimation(_object, ANIMATION_TYPE.selected, null);
 
-                if(min_object.compareTo(_object) > 0){
-
+                if(this.compareTwoObjects(min_object, _object) > 0){
                     // 3. compare the object with other
                     this.animateStackHandle.setAnimation(min_object, ANIMATION_TYPE.compareTo, _object);
 
@@ -45,36 +44,20 @@ class SelectionSort extends SortArrayData{
             this.animateStackHandle.setAnimation(min_object, ANIMATION_TYPE.unselected, null);
 
             if(min_idx != i){
-                let target_object  = this.listObject[min_idx];
-
-                // swap position for object
-                this.listObject[min_idx] = current_object;
-                this.listObject[i] = target_object;
-
+                this.swapTwoObjects(i, min_idx);
                 this.animateStackHandle.setAnimation(this.listObject[i], ANIMATION_TYPE.swapPosition, this.listObject[min_idx]);
                 this.animateStackHandle.setAnimation(this.listObject[i], ANIMATION_TYPE.finished, null);
             } else {
                 this.animateStackHandle.setAnimation(this.listObject[i], ANIMATION_TYPE.finished, null);
             }
 
-            showCurrentListObject(this.listObject, i);
+            this.showCurrentData(i);
         }
 
         this.animateStackHandle.setAnimation(this.listObject[this.listObject.length - 1], ANIMATION_TYPE.finished, null);
 
-        this.animateStackHandle.playListAnimate();
+        this.animateStackHandle.playListAnimate(this.numberCompare, this.numberSwap);
 
 
-        function showCurrentListObject (listObject, index){
-            let message = new Array();
-            for(let i = 0; i < listObject.length; i++){
-                message.push(" " + listObject[i].value + " ");
-
-                if(i == index){
-                    message.push(" | ");
-                }
-            }
-            console.log(message.join(""));
-        }
     }
 }

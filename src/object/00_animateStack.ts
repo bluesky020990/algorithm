@@ -33,8 +33,11 @@ class AnimateStackHandle {
         this.addListAnimate(listAnimate);
     };
 
-    playListAnimate = () =>{
-        let currentCallBackFunc = null;
+    playListAnimate = (numberCompare, numberSwap) =>{
+        let currentCallBackFunc = ()=> {
+            alert("The sort function takes " + numberCompare + " compares and " + numberSwap + " swaps function");
+        };
+
         for(let i = this.listAnimate.length - 1; i >= 0; i --){
             let animateData = this.listAnimate[i];
             if(i > 0){

@@ -1,6 +1,7 @@
 let RaphaelJs = null;
 
 interface IPoint {
+    value: number;
     objectType : string;
 
     compareTo: (IPoint) => number,
@@ -111,6 +112,9 @@ interface ArrayRange {
 
 
 class SortArrayData implements ISortArray {
+    numberCompare = 0;
+    numberSwap = 0;
+
     animateStackHandle: AnimateStackHandle;
     listObject: IPoint[];
     paper: any;
@@ -179,6 +183,36 @@ class SortArrayData implements ISortArray {
         this.listObject = _listObject;
     };
 
+
+    // if object > target point : return  > 0 else return < 0;
+    compareTwoObjects =  (object : IPoint, target: IPoint) => {
+        this.numberCompare += 1;
+        return object.compareTo(target);
+    };
+
+    swapTwoObjects =  (objectIndex : number, targetIndex: number) => {
+        this.numberSwap += 1;
+
+        let object = this.listObject[objectIndex];
+        let target  = this.listObject[targetIndex];
+
+        // swap position for object
+        this.listObject[targetIndex] = object;
+        this.listObject[objectIndex] = target;
+    };
+
+    showCurrentData = (index) =>{
+        let message = new Array();
+        for(let i = 0; i < this.listObject.length; i++){
+            message.push(" " + this.listObject[i].value + " ");
+
+            if(i == index){
+                message.push(" | ");
+            }
+        }
+        console.log(message.join(""));
+    };
+
     sortArray = () => {
         // let implement do it
     };
@@ -188,13 +222,18 @@ class SortArrayData implements ISortArray {
     }
 }
 
+enum SORT_TYPE {
+    SelectionSort = "SELECTION_SORT",
+    BubbleSort = "BUBBLE_SORT"
+}
 
 class SortArrayFactory {
     getObject = (paper, type: string) => {
-        if (type == "SELECTION_SORT") {
-            return new SelectionSort(paper)
-        } else {
-            return new SortArrayData(paper);
+        switch (type){
+            case SORT_TYPE.SelectionSort : return new SelectionSort(paper);
+            case SORT_TYPE.BubbleSort    : return new BubbleSort(paper);
+
+            default : return new SortArrayData(paper);
         }
     }
 }

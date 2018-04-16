@@ -26,7 +26,7 @@
         <input type="checkbox" id="is-duplicated" />
 
         <div>
-            <a id="btn-generate" onClick="generateListObject()">Generate</a>
+            <a id="btn-generate" onClick="generateLayout()">Generate</a>
             <a id="btn btn-sort" onClick="sortListObject()">SORT</a>
         </div>
     </div>
@@ -44,14 +44,18 @@
         CURRENT_SORT_OBJECT.sortArray();
     }
 
-    function generateListObject(){
-        var sortType = "BUBBLE_SORT"; //"SELECTION_SORT";
+    function generateLayout(){
+        var paper = generateRaphaelContainer();
+        CURRENT_SORT_OBJECT = generateArrayData(Raphael, paper);
+    }
+
+    function generateRaphaelContainer (){
         var container = document.getElementById("sort-object-container");
         container.innerHTML = "";
-
         var paper = new Raphael("sort-object-container", container.clientWidth, container.clientHeight);
         paper.setViewBox(0, 0, container.clientWidth, container.clientHeight, true);
-        CURRENT_SORT_OBJECT = triggerSortEvent(Raphael, paper, sortType, 25, false, null);
+
+        return paper;
     }
 </script>
 </body>

@@ -279,35 +279,6 @@ var SortArrayData = /** @class */ (function () {
     }
     return SortArrayData;
 }());
-var SORT_TYPE;
-(function (SORT_TYPE) {
-    SORT_TYPE["SelectionSort"] = "SELECTION_SORT";
-    SORT_TYPE["BubbleSort"] = "BUBBLE_SORT";
-})(SORT_TYPE || (SORT_TYPE = {}));
-var SortArrayFactory = /** @class */ (function () {
-    function SortArrayFactory() {
-        this.getObject = function (paper, type) {
-            switch (type) {
-                case SORT_TYPE.SelectionSort: return new SelectionSort(paper);
-                case SORT_TYPE.BubbleSort: return new BubbleSort(paper);
-                default: return new SortArrayData(paper);
-            }
-        };
-    }
-    return SortArrayFactory;
-}());
-function triggerSortEvent(raphael, paper, sortType) {
-    var params = [];
-    for (var _i = 3; _i < arguments.length; _i++) {
-        params[_i - 3] = arguments[_i];
-    }
-    RaphaelJs = raphael;
-    var totalNumber = params[0];
-    var sortArrayFactory = new SortArrayFactory();
-    var arrayObject = sortArrayFactory.getObject(paper, sortType);
-    arrayObject.createArray(totalNumber, false, null);
-    return arrayObject;
-}
 var AbstractObjectRepresent = /** @class */ (function () {
     function AbstractObjectRepresent() {
         var _this = this;
@@ -478,6 +449,36 @@ var ObjectRepresentFactory = /** @class */ (function () {
     };
     return ObjectRepresentFactory;
 }());
+var SORT_TYPE;
+(function (SORT_TYPE) {
+    SORT_TYPE["SelectionSort"] = "SELECTION_SORT";
+    SORT_TYPE["BubbleSort"] = "BUBBLE_SORT";
+    SORT_TYPE["InsertSort"] = "INSERT_SORT";
+})(SORT_TYPE || (SORT_TYPE = {}));
+var SortArrayFactory = /** @class */ (function () {
+    function SortArrayFactory() {
+        this.getObject = function (paper, type) {
+            switch (type) {
+                case SORT_TYPE.SelectionSort: return new SelectionSort(paper);
+                case SORT_TYPE.BubbleSort: return new BubbleSort(paper);
+                case SORT_TYPE.InsertSort: return new InsertSort(paper);
+                default: return new SortArrayData(paper);
+            }
+        };
+    }
+    return SortArrayFactory;
+}());
+function generateArrayData(raphael, paper) {
+    var totalNumber = 20;
+    var sortType = SORT_TYPE.SelectionSort;
+    var isDuplicated = false;
+    var range = null; // using default
+    RaphaelJs = raphael;
+    var sortArrayFactory = new SortArrayFactory();
+    var arrayObject = sortArrayFactory.getObject(paper, sortType);
+    arrayObject.createArray(totalNumber, isDuplicated, range);
+    return arrayObject;
+}
 /*
 *
 * Giai thuat nay trinh bay nhu sau :
@@ -558,4 +559,33 @@ var BubbleSort = /** @class */ (function (_super) {
         return _this;
     }
     return BubbleSort;
+}(SortArrayData));
+/*
+*
+* Giai thuat nay trinh bay nhu sau :
+*
+* Copy vi thay cai naay kha thu vi
+* Sắp xếp chèn (insertion sort) là một thuật toán sắp xếp bắt chước cách sắp xếp quân bài của những người chơi bài.
+* Muốn sắp một bộ bài theo trật tự người chơi bài rút lần lượt từ quân thứ 2, so với các quân đứng trước nó để chèn
+ * vào vị trí thích hợp.
+* */
+var InsertSort = /** @class */ (function (_super) {
+    __extends(InsertSort, _super);
+    function InsertSort(paper) {
+        var _this = _super.call(this, paper) || this;
+        _this.sortArray = function () {
+            for (var i = 1; i < _this.listObject.length; i++) {
+                var j = i - 1;
+                var current = _this.listObject[i];
+                while (j >= 0 && _this.compareTwoObjects(_this.listObject[i], _this.listObject[j]) < 0) {
+                    _this.listObject[j + 1] = _this.listObject[j];
+                    j--;
+                }
+                _this.listObject[j + 1] = current;
+                _this.showCurrentData(i);
+            }
+        };
+        return _this;
+    }
+    return InsertSort;
 }(SortArrayData));

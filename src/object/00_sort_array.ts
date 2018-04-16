@@ -221,29 +221,3 @@ class SortArrayData implements ISortArray {
         return begin + Math.floor(Math.random() * (end - begin))
     }
 }
-
-enum SORT_TYPE {
-    SelectionSort = "SELECTION_SORT",
-    BubbleSort = "BUBBLE_SORT"
-}
-
-class SortArrayFactory {
-    getObject = (paper, type: string) => {
-        switch (type){
-            case SORT_TYPE.SelectionSort : return new SelectionSort(paper);
-            case SORT_TYPE.BubbleSort    : return new BubbleSort(paper);
-
-            default : return new SortArrayData(paper);
-        }
-    }
-}
-
-
-function triggerSortEvent(raphael, paper, sortType, ...params) {
-    RaphaelJs = raphael;
-    let totalNumber = params[0];
-    let sortArrayFactory = new SortArrayFactory();
-    let arrayObject = sortArrayFactory.getObject(paper, sortType);
-    arrayObject.createArray(totalNumber, false, null);
-    return arrayObject;
-}
